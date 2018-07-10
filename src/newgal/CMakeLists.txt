@@ -29,6 +29,7 @@ mg_add_sub_dir_with_condition (stgfb        _MGGAL_STGFB)
 
 mg_add_sub_dir_with_condition (pcxvfb       _MGGAL_PCXVFB)
 mg_add_sub_dir_with_condition (rtos_xvfb    _MGGAL_RTOSXVFB)
+mg_add_sub_dir_with_condition (drmcon        _MGGAL_DRMCON)
 
 if (_MGGAL_HI3560 OR _MGGAL_HI3510)
     mg_add_sub_source_dirs (hisi)

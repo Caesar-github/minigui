@@ -80,6 +80,7 @@ int main () {
 ")
 mg_declare_option_and_set_value_with_compile ("${code_check_directfb}" _MGGAL_DFB gal_dfb   BOOL   OFF   "include NEWGAL engine for DirectFB")
 
+mg_declare_option_and_set_value_with_compile (_MGGAL_DRMDRM gal_drmcon BOOL  ON   "include DRM console NEWGAL engine")
 mg_declare_option_and_set_value (_MGGAL_DUMMY     gal_dummy     BOOL   ON   "include dummy NEWGAL engine")
 mg_declare_option_and_set_value (_MGGAL_QVFB      gal_qvfb      BOOL   OFF  "include Qt Virtual FrameBuffer NEWGAL engine")
 mg_declare_option_and_set_value (_MGGAL_WVFB      gal_wvfb      BOOL   OFF  "include windows Virtual FrameBuffer NEWGAL engine")

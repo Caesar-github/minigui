@@ -276,6 +276,7 @@ enable_video_s3c6410="no"
 enable_video_sigma8654="no"
 enable_video_mstar="no"
 enable_video_custom="no"
+enable_video_drmcon="no"
 
 dnl settings for license management
 build_productid="no"
@@ -860,6 +861,36 @@ CheckFBCON()
     fi
 }
 
+dnl Find the drm console includes
+CheckDRMCON()
+{
+    AC_ARG_ENABLE(videodrmcon,
+[  --enable-videodrmcon      include DRM console NEWGAL engine <default=yes>],
+    enable_video_drmcon=$enableval)
+    if test x$enable_video_drmcon = xyes; then
+        AC_MSG_CHECKING(for DRM console support)
+        video_drmcon=yes
+        AC_MSG_RESULT($video_drmcon)
+        if test x$video_drmcon = xyes; then
+            AC_DEFINE(_MGGAL_DRMCON, 1,
+                [Define if include DRM console NEWGAL engine])
+            VIDEO_SUBDIRS="$VIDEO_SUBDIRS drmcon"
+            VIDEO_DRIVERS="$VIDEO_DRIVERS drmcon/libvideo_drmcon.la"
+
+            have_pciaccess="yes"
+            AC_CHECK_LIB(pciaccess, pci_system_init,
+                DEP_LIBS="$DEP_LIBS -lpciaccess", have_pciaccess="no")
+
+            if test x$have_pciaccess = xyes; then
+                AC_DEFINE(_MGHAVE_PCIACCESS, 1,
+                [Define if PCIAccess lib is available])
+                LDFLAGS="$LDFLAGS -lpciaccess"
+
+            fi
+        fi
+    fi
+}
+
 dnl Check Qt Virtual FrameBuffer
 CheckQVFB()
 {
@@ -1300,6 +1331,7 @@ dnl Checks NewGAL Engine.
   CheckSigmaVideo
   CheckMStarVideo
   CheckCustomVideo
+  CheckDRMCON
 }
 
 dnl ========================================================================
@@ -1486,7 +1518,7 @@ dnl esac
 
 AC_ARG_WITH(targetname,
   [  --with-targetname=unknown/customer/fmsoft/mstudio/stb810/vfanvil/vxi386/qvfb/fbcon/mx21/monaco/c33l05/bfin/vxppc/
-                        S3C6410/S3C2440/S3C2410/hi3560a     Define the target board name])
+                        S3C6410/S3C2440/S3C2410/hi3560a/drmcon     Define the target board name])
 
 case "$with_targetname" in
   fmsoft)
@@ -2505,6 +2537,7 @@ src/newgal/sigma8654/Makefile
 src/newgal/mstar/Makefile
 src/newgal/gdl/Makefile
 src/newgal/stgfb/Makefile
+src/newgal/drmcon/Makefile
 src/ial/Makefile
 src/ial/native/Makefile
 src/ial/netial/Makefile

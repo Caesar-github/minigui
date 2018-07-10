@@ -310,6 +310,9 @@ extern VideoBootStrap GDL_bootstrap;
 #ifdef _MGGAL_STGFB
 extern VideoBootStrap STGFB_bootstrap;
 #endif
+#ifdef _MGGAL_DRMCON
+extern VideoBootStrap DRMCON_bootstrap;
+#endif
 
 /* This is the current video device */
 extern GAL_VideoDevice *current_video;
