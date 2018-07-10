@@ -260,6 +260,7 @@ MGUI_COMPILE_TIME_ASSERT(sint64, sizeof(Sint64) == 8);
  *
  * to write endianness independent code.
  */
+/*
 #if defined(__i386__) || defined(__ia64__) || defined(__x86_64__) || defined(__amd64) || \
         (defined(__alpha__) || defined(__alpha)) || \
         defined(__arm__) || \
@@ -271,7 +272,8 @@ MGUI_COMPILE_TIME_ASSERT(sint64, sizeof(Sint64) == 8);
 #else
 #   define MGUI_BYTEORDER   MGUI_BIG_ENDIAN
 #endif
-
+*/
+#define MGUI_BYTEORDER   MGUI_LIL_ENDIAN
     /** @} end of endian_info */
 
     /**
