@@ -77,7 +77,9 @@ union semun {
 #include "newgal.h"
 #include "sysvideo.h"
 #include "pixels_c.h"
-
+#ifdef _MGGAL_DRMCON
+#include "../drmcon/drm_display.h"
+#endif
 #define SHADOWVID_DRIVER_NAME "shadow"
 #include "shadow.h"
 
@@ -297,6 +299,7 @@ static int RealEngine_GetInfo (RealFBInfo * realfb_info)
         fprintf (stderr, "NEWGAL>SHADOW: can not init real engine (%s) \n", engine);
 
     realfb_info->real_device = real_device;
+    real_vformat.BitsPerPixel = depth;
     real_device->VideoInit(realfb_info->real_device, &real_vformat);
 
     real_device->screen = GAL_CreateRGBSurface (GAL_SWSURFACE,
@@ -403,7 +406,7 @@ static void RealEngine_Sleep(void)
 #ifdef WIN32
     win_sleep (20);
 #else
-    usleep(20);
+    usleep(2000);
 #endif
     return ;
 }
@@ -484,6 +487,7 @@ static void* task_do_update (void* data)
         if (__gal_screen !=NULL) {
             break;
         }
+        usleep(1000);
     }
 
     for (;;) {
@@ -504,6 +508,10 @@ static void* task_do_update (void* data)
 #endif
 
             if (real_device) {
+#ifdef _MGGAL_DRMCON
+                struct bo *bo = NULL;
+                bo = getdrmdisp();
+#endif
                 if (_shadowfbheader->palette_changed) {
                     real_device->SetColors (real_device, _shadowfbheader->firstcolor,
                             _shadowfbheader->ncolors,
@@ -511,7 +519,11 @@ static void* task_do_update (void* data)
                     SetRect (&_shadowfbheader->dirty_rect, 0, 0,
                             _shadowfbheader->width, _shadowfbheader->height); 
                 }
-
+                if (bo != NULL) {
+                    this->hidden->realfb_info->fb = bo->ptr;
+                    SetRect (&_shadowfbheader->dirty_rect, 0, 0,
+                              _shadowfbheader->width, _shadowfbheader->height); 
+                }
                 __mg_shadow_fb_ops->refresh (_shadowfbheader,
                         this->hidden->realfb_info, &(_shadowfbheader->dirty_rect));
 
@@ -542,6 +554,9 @@ static void* task_do_update (void* data)
 
                 if (real_device->UpdateRects)
                     real_device->UpdateRects(real_device, 1, &dirty_rect);
+#ifdef _MGGAL_DRMCON
+                setdrmdisp(bo);
+#endif
             }
 
             SetRect (&_shadowfbheader->dirty_rect, 0, 0, 0, 0);
