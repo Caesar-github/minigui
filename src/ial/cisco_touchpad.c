@@ -491,11 +491,11 @@ BOOL InitCiscoTouchpadInput (INPUT* input, const char* mdev, const char* mtype)
                 strerror(errno), mdev);
     }
 
-    if (getenv("MG_ENV_DISABLE_APP_MODE")) {
+    //if (getenv("MG_ENV_DISABLE_APP_MODE")) {
         s_enable_appmode = 0;
-    }else{
-        s_enable_appmode = 1;
-    }
+    //}else{
+    //    s_enable_appmode = 1;
+    //}
 
     if (s_enable_appmode) {
         system("mknod /dev/hidraw0 c 253 0 > /dev/null 2>&1");
