@@ -339,7 +339,8 @@ LRESULT GUIAPI PreDefDialogProc (HWND hWnd, UINT message,
 
     case MSG_ISDIALOG:
         return 1;
-
+    case MSG_KEYLONGPRESS:
+		break;
     case MSG_KEYDOWN:
         if ((hCurFocus = GetFocusChild (hWnd)) 
                 && SendMessage (hCurFocus, MSG_GETDLGCODE, 0, 0L) & 
@@ -350,7 +351,7 @@ LRESULT GUIAPI PreDefDialogProc (HWND hWnd, UINT message,
         case SCANCODE_ESCAPE:
             SendMessage (hWnd, MSG_COMMAND, IDCANCEL, 0L);
             return 0;
-
+        case SCANCODE_VOLDOWN:
         case SCANCODE_TAB:
         {
             HWND hNewFocus;
@@ -375,7 +376,31 @@ LRESULT GUIAPI PreDefDialogProc (HWND hWnd, UINT message,
 
             return 0;
         }
-
+		case SCANCODE_VOLUP:
+		{
+			HWND hNewFocus;
+						
+			if (hCurFocus && SendMessage (hCurFocus, MSG_GETDLGCODE, 0, 0L) & 
+							DLGC_WANTTAB)
+				break;
+		
+			if (lParam & KS_SHIFT)
+				hNewFocus = GetNextDlgTabItem (hWnd, hCurFocus, FALSE);
+			else
+				hNewFocus = GetNextDlgTabItem (hWnd, hCurFocus, TRUE);
+		
+			if (hNewFocus != hCurFocus) {
+				SetNullFocus (hCurFocus);
+				SetFocus (hNewFocus);
+#if 0
+				SendMessage (hWnd, MSG_DLG_SETDEFID, 
+										GetDlgCtrlID (hNewFocus), 0L);
+#endif
+			}
+		
+			return 0;
+		}
+        case SCANCODE_PLAY:
         case SCANCODE_KEYPADENTER:
         case SCANCODE_ENTER:
         {
