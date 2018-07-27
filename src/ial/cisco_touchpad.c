@@ -242,7 +242,7 @@ static int keyboard_update (void)
 
         retvalue = kbddev->Read (&buf, &modifier); 
         if ((retvalue == -1) || (retvalue == 0)) {
-            return 0;
+            return NR_KEYS;
         } else { /* retvalue > 0 */
             is_pressed = !(buf & 0x80);
             ch         = buf & 0x7f;
@@ -252,7 +252,7 @@ static int keyboard_update (void)
             else {
                 state[ch] = 0;
             }
-            // printf("is_pressed=%d, ch=%d, state[%d]=%d\n", is_pressed, ch, ch, state[ch]);
+            //printf("is_pressed=%d, ch=%d, state[%d]=%d, buff = 0x%x\n", is_pressed, ch, ch, state[ch], buf);
         } 
         return NR_KEYS;
     } else if(APP_MODE == s_current_mode) {
@@ -475,7 +475,7 @@ static int mouse_open(const char *device) {
 BOOL InitCiscoTouchpadInput (INPUT* input, const char* mdev, const char* mtype)
 {
     {
-#       define KBD "/dev/input/event0"
+#       define KBD "/dev/input/event1"
         char keyboard_device[] = KBD;
         system("mknod "KBD" c 13 64 > /dev/null 2>&1");
         kbd_fd = keyboard_open(keyboard_device);

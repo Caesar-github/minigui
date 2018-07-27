@@ -62,6 +62,7 @@ static void EVENT_GetModifierInfo(int *modifiers);
 static int  EVENT_Read(unsigned char *buf, int *modifiers);
 static void EVENT_Suspend(void);
 static int  EVENT_Resume(void);
+static int EVENT_Read_1(unsigned int *buf, int *modifiers);
 
 KBDDEVICE kbddev_event = {
     EVENT_Open,
@@ -69,7 +70,8 @@ KBDDEVICE kbddev_event = {
     EVENT_GetModifierInfo,
     EVENT_Read,
     EVENT_Suspend,
-    EVENT_Resume
+    EVENT_Resume,
+    EVENT_Read_1
 };
 
 static int kbd_fd;        /* file descriptor for keyboard */
@@ -183,7 +185,37 @@ static int EVENT_Read(unsigned char *buf, int *modifiers)
     }else{
         return 0;
     }
+	
 }
+
+static int EVENT_Read_1(unsigned int *buf, int *modifiers)
+{
+    int    cc;            /* characters read */
+    struct input_event buftmp;
+
+    *modifiers = 0;            /* no modifiers yet */
+
+    *buf = 0;
+
+    cc=read(kbd_fd, &buftmp, sizeof(buftmp));
+    if (cc < 0) {
+        if ((errno != EINTR) && (errno != EAGAIN))
+            return 0;
+        return -1;
+    }
+
+    if(buftmp.type) {
+        if(buftmp.value == 0) {
+            *buf = 0x8000;
+        }
+        *buf |= (unsigned char)(buftmp.code & 0x00ff);
+        // printf("keyboard: value=%d,code=%d,*buf=0x%08x\n",buftmp.value, buftmp.code, *buf);
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
 
 /* activate_keyboard:
  *  Put keyboard into the mode we want.

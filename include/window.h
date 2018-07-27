@@ -591,6 +591,8 @@ extern "C" {
  */
 #define MSG_UTF8CHAR        0x0019
 
+#define MSG_KEYUP_LONG    0x001A
+
 /**
  * \def DEF_LPRESS_TIME
  * \brief Default long pressed time of a key.

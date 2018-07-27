@@ -96,6 +96,7 @@ typedef struct _kbddevice {
     int  (*Read)(unsigned char *buf,int *modifiers);
     void (*Suspend) (void);
     int  (*Resume) (void);
+	int  (*Read_1)(unsigned int *buf,int *modifiers);
 } KBDDEVICE;
 
 extern KBDDEVICE kbddev_tty;

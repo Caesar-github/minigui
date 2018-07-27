@@ -668,11 +668,14 @@ BOOL kernel_GetLWEvent (int event, PLWEVENT lwe)
                  ke_time =__mg_timer_counter;
                  ke->scancode = i;
                  olddownkey = i;
+				 oldkeystate[i] = keystate[i];
                  break;
             }
             if(oldkeystate[i] && !keystate[i]) {
                  ke->event = KE_KEYUP;
                  ke->scancode = i;
+				 oldkeystate[i] = keystate[i];
+				 olddownkey = 0;
                  break;
             }
         }

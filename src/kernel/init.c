@@ -73,6 +73,8 @@ int __mg_quiting_stage;
 
 #ifdef _MGRM_THREADS
 int __mg_enter_terminategui;
+#define LONGPRESSCOUNT	4
+static unsigned char prekeysta[256];
 
 /******************************* extern data *********************************/
 extern void* DesktopMain (void* data);
@@ -103,10 +105,30 @@ static void ParseEvent (PLWEVENT lwe)
         Msg.wParam = ke->scancode;
         Msg.lParam = ke->status;
         if(ke->event == KE_KEYDOWN){
-            Msg.message = MSG_KEYDOWN;
+			//int sta = (prekeysta[ke->scancode] & 1);
+			//if (sta == 1) {
+				unsigned char count =  (prekeysta[ke->scancode] >> 4);
+				if (count == 0) {
+					Msg.message = MSG_KEYDOWN;
+					prekeysta[ke->scancode] += 0x10;
+				} else if (count > LONGPRESSCOUNT) {
+					Msg.message = MSG_KEYLONGPRESS;
+				} else {
+					prekeysta[ke->scancode] += 0x10;
+					return;
+				}
+			//} else {
+			//	prekeysta[ke->scancode] = 1;
+			//}
         }
         else if (ke->event == KE_KEYUP) {
-            Msg.message = MSG_KEYUP;
+            unsigned char count =  (prekeysta[ke->scancode] >> 4);
+            if (count > LONGPRESSCOUNT) {
+                Msg.message = MSG_KEYUP_LONG;
+            } else {
+                Msg.message = MSG_KEYUP;
+            }
+	    prekeysta[ke->scancode] = 0;
         }
         else if (ke->event == KE_KEYLONGPRESS) {
             Msg.message = MSG_KEYLONGPRESS;
@@ -166,26 +188,24 @@ static void* EventLoop (void* data)
     LWEVENT lwe;
     int event;
 
+	memset(prekeysta, 0, sizeof(prekeysta));
     lwe.data.me.x = 0; lwe.data.me.y = 0;
 
     sem_post ((sem_t*)data);
 
     while (__mg_quiting_stage > _MG_QUITING_STAGE_EVENT) {
-        event = IAL_WaitEvent (IAL_MOUSEEVENT | IAL_KEYEVENT, 0,
+        event = IAL_WaitEvent (IAL_KEYEVENT, 0,
                         NULL, NULL, NULL, (void*)&__mg_event_timeout);
         if (event < 0)
             continue;
-
         lwe.status = 0L;
         lwe.data.me.status = 0;
         if (event & IAL_MOUSEEVENT && kernel_GetLWEvent (IAL_MOUSEEVENT, &lwe))
             ParseEvent (&lwe);
-
         lwe.status = 0L;
         lwe.data.ke.status = 0;
         if (event & IAL_KEYEVENT && kernel_GetLWEvent (IAL_KEYEVENT, &lwe))
             ParseEvent (&lwe);
-
         if (event == 0 && kernel_GetLWEvent (0, &lwe))
             ParseEvent (&lwe);
     }

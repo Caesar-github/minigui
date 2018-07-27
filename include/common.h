@@ -1270,6 +1270,9 @@ typedef struct _GAL_Rect {
 #define SCANCODE_INSERT                 110
 #define SCANCODE_REMOVE                 111
 
+#define SCANCODE_VOLDOWN                114
+#define SCANCODE_VOLUP                  115
+
 #define SCANCODE_PAUSE                  119
 
 #define SCANCODE_POWER                  120
@@ -1279,6 +1282,9 @@ typedef struct _GAL_Rect {
 #define SCANCODE_LEFTWIN                125
 #define SCANCODE_RIGHTWIN               126
 #define SCANCODE_MENU                   127
+
+#define SCANCODE_PLAY                   79
+
 
 #define SCANCODE_LEFTBUTTON             0x1000
 #define SCANCODE_RIGHTBUTTON            0x2000
