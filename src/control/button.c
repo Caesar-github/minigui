@@ -928,7 +928,8 @@ static LRESULT ButtonCtrlProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         case MSG_KEYDOWN:
             if (wParam != SCANCODE_SPACE 
                     && wParam != SCANCODE_ENTER
-                    && wParam != SCANCODE_KEYPADENTER)
+                    && wParam != SCANCODE_KEYPADENTER
+                    && wParam != SCANCODE_PLAY)
                 break;
 
             if (GetCapture () == hWnd)
@@ -945,7 +946,8 @@ static LRESULT ButtonCtrlProc (HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
         {
             if (wParam != SCANCODE_SPACE 
                     && wParam != SCANCODE_ENTER
-                    && wParam != SCANCODE_KEYPADENTER)
+                    && wParam != SCANCODE_KEYPADENTER
+                    && wParam != SCANCODE_PLAY)
                 break;
                 
             if (GetCapture () == hWnd)
