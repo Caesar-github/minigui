@@ -1,7 +1,7 @@
 # The directory where the data files will be installed
 
-install-data-local:
-	if [ ! -d $(prefix)/etc ]; then $(INSTALL) -d $(prefix)/etc; fi
+#install-data-local:
+#	if [ ! -d $(prefix)/etc ]; then $(INSTALL) -d $(prefix)/etc; fi
 
 ##if MGLIB_MVFB
 ##	$(INSTALL_DATA) $(abs_top_srcdir)/etc/mvfb.cfg $(prefix)/etc/mvfb.cfg
