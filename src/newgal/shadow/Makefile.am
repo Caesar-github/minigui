@@ -1,7 +1,7 @@
 AM_CPPFLAGS = -I$(abs_top_srcdir)/src/include -I$(abs_top_srcdir)/include \
 			            -I$(abs_top_srcdir)/src/newgal/
 
-SRC_FILES = shadow.c shadow_refresh_msb_right.c shadow_refresh_msb_left.c
+SRC_FILES = shadow.c shadow_rga.c shadow_refresh_msb_right.c shadow_refresh_msb_left.c
 
 HDR_FILES = shadow.h
 

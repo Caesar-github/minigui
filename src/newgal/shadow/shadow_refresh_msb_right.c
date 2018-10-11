@@ -44,6 +44,7 @@
 #include "sysvideo.h"
 #include "error.h"
 #include "shadow.h"
+#include "shadow_rga.h"
    
 gal_uint8* __gal_a_line;
  
@@ -186,6 +187,10 @@ void refresh_normal_msb_right (ShadowFBHeader * shadowfb_header, RealFBInfo *rea
     src_bits = (gal_uint8*)shadowfb_header + shadowfb_header->fb_offset;
     src_bits += src_update.top * shadowfb_header->pitch + src_update.left * shadowfb_header->depth/8;
 
+#if defined(_MGGAL_DRMCON) && ENABLE_RGA
+    shadow_rga_refresh(shadowfb_header->width, shadowfb_header->height,
+                       realfb_info->width, realfb_info->height, 0);
+#else
     if (realfb_info->depth == 1) {
         dst_bits += src_update.top * realfb_info->pitch;
         
@@ -229,6 +234,7 @@ void refresh_normal_msb_right (ShadowFBHeader * shadowfb_header, RealFBInfo *rea
             dst_bits += realfb_info->pitch;
         }
     }
+#endif
 }
 
 void _get_dst_rect_cw (RECT* dst_rect, const RECT* src_rect, RealFBInfo *realfb_info)
@@ -292,6 +298,10 @@ void refresh_cw_msb_right (ShadowFBHeader *shadowfb_header, RealFBInfo *realfb_i
 
     dst_line = (gal_uint8*)realfb_info->fb + dst_update.top * realfb_info->pitch;
     
+#if defined(_MGGAL_DRMCON) && ENABLE_RGA
+    shadow_rga_refresh(shadowfb_header->width, shadowfb_header->height,
+                       realfb_info->width, realfb_info->height, HAL_TRANSFORM_ROT_90);
+#else
     for (x = 0; x < dst_height; x++) {
         /* Copy the bits from vertical line to horizontal line */
         const BYTE* ver_bits = src_bits;
@@ -362,6 +372,7 @@ void refresh_cw_msb_right (ShadowFBHeader *shadowfb_header, RealFBInfo *realfb_i
 
         }
     }
+#endif
 }
 
 void refresh_ccw_msb_right (ShadowFBHeader* shadowfb_header, RealFBInfo* realfb_info, void* update)
@@ -394,6 +405,10 @@ void refresh_ccw_msb_right (ShadowFBHeader* shadowfb_header, RealFBInfo* realfb_
 
     dst_line = (gal_uint8*)realfb_info->fb + (dst_update.bottom - 1) * realfb_info->pitch;
 
+#if defined(_MGGAL_DRMCON) && ENABLE_RGA
+    shadow_rga_refresh(shadowfb_header->width, shadowfb_header->height,
+                       realfb_info->width, realfb_info->height, HAL_TRANSFORM_ROT_270);
+#else
     for (x = 0; x < dst_height; x++) {
         /* Copy the bits from vertical line to horizontal line */
         const BYTE* ver_bits = src_bits;
@@ -464,6 +479,7 @@ void refresh_ccw_msb_right (ShadowFBHeader* shadowfb_header, RealFBInfo* realfb_
                 break;
         }
     }
+#endif
 }
 
 void _get_dst_rect_hflip (RECT* src_rect, RealFBInfo *realfb_info)

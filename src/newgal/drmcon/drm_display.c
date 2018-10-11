@@ -496,6 +496,12 @@ void setdrmdisp(struct bo *bo)
     }
 }
 
+void getdrmdispbpp(int *bpp)
+{
+    *bpp = pdev->mode.bpp;
+}
+
+
 #if 0
 int main(int argc, char **argv)
 {

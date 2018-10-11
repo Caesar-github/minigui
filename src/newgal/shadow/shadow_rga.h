@@ -5,7 +5,9 @@
 extern "C" {
 #endif
 
+#if ENABLE_RGA
 #include <rga/RgaApi.h>
+#endif
 
 void *shadow_rga_g_bo_ptr();
 int shadow_rga_init(int size);

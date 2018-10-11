@@ -83,6 +83,10 @@ union semun {
 #define SHADOWVID_DRIVER_NAME "shadow"
 #include "shadow.h"
 
+#if ENABLE_RGA
+#include "shadow_rga.h"
+#endif
+
 #define FLAG_REALFB_PREALLOC  0x01
 #define _ROT_DIR_CW 0x02
 #define _ROT_DIR_CCW 0x04
@@ -675,7 +679,13 @@ static GAL_Surface *SHADOW_SetVideoMode(_THIS, GAL_Surface *current,
         size += PALETTE_SIZE;
 
     size += sizeof (ShadowFBHeader);
+#if defined(_MGGAL_DRMCON) && ENABLE_RGA
+    if (shadow_rga_init(size))
+        abort();
+    _shadowfbheader = (ShadowFBHeader *)shadow_rga_g_bo_ptr();
+#else
     _shadowfbheader = (ShadowFBHeader *) malloc (size);
+#endif
     memcpy(_shadowfbheader, &shadowfbheader, sizeof(ShadowFBHeader));
 
     /* INIT  Share Memory  ShadowFBHeader */
@@ -750,7 +760,11 @@ static void SHADOW_VideoQuit (_THIS)
 
     if (_shadowfbheader) {
         _shadowfbheader->dirty = FALSE;
+#if defined(_MGGAL_DRMCON) && ENABLE_RGA
+        shadow_rga_exit();
+#else
         free(_shadowfbheader);
+#endif
         _shadowfbheader = NULL;
     }
 

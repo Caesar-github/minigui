@@ -1,3 +1,5 @@
+#if ENABLE_RGA
+
 #include "shadow_rga.h"
 #include "../drmcon/drm_display.h"
 
@@ -100,3 +102,5 @@ void shadow_rga_refresh(int src_w, int src_h, int dst_w, int dst_h, int rotate)
     close(g_dst_fd);
     setdrmdisp(bo);
 }
+
+#endif
