@@ -68,7 +68,7 @@ struct device {
         unsigned int width;
         unsigned int height;
 
-        //unsigned int fb_id[MAX_FB];
+        unsigned int fb_id[MAX_FB];
         struct bo *bo[MAX_FB];
         int current;
         int fb_num;
@@ -358,10 +358,10 @@ static void buffer_init(struct device *dev, int num, int bpp)
                     dev->mode.width, dev->mode.height, strerror(errno));
             return;
         }
-        bo->fb_id = fb_id;
+        dev->mode.fb_id[i] = fb_id;
     }
 
-    ret = drmModeSetCrtc(dev->fd, dev->resources->crtcs[0].crtc->crtc_id, dev->mode.bo[0]->fb_id,
+    ret = drmModeSetCrtc(dev->fd, dev->resources->crtcs[0].crtc->crtc_id, dev->mode.fb_id[0],
                          x, 0, &dev->resources->connectors->connector->connector_id, 1,
                          dev->resources->crtcs[0].mode);
     if (ret) {
@@ -375,7 +375,7 @@ static void clear_mode(struct device *dev)
     int i;
     for (i = 0; i < dev->mode.fb_num; i++) {
         if (dev->mode.bo[i]) {
-            drmModeRmFB(dev->fd, dev->mode.bo[i]->fb_id);
+            drmModeRmFB(dev->fd, dev->mode.fb_id[i]);
             bo_unmap(dev->mode.bo[i]);
             bo_destroy(dev->mode.bo[i]);
         }
@@ -487,7 +487,7 @@ void setdrmdisp(struct bo *bo)
     if (dev == NULL)
         return;
 
-    ret = drmModeSetCrtc(dev->fd, dev->resources->crtcs[0].crtc->crtc_id, bo->fb_id,
+    ret = drmModeSetCrtc(dev->fd, dev->resources->crtcs[0].crtc->crtc_id, dev->mode.fb_id[pdev->mode.current],
                          0, 0, &dev->resources->connectors->connector->connector_id, 1,
                          dev->resources->crtcs[0].mode);
     if (ret) {

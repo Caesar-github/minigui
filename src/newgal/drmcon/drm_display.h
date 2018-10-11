@@ -8,7 +8,6 @@ struct bo {
     size_t offset;
     size_t pitch;
     unsigned handle;
-    int fb_id;
 };
 
 int drm_init(int num, int bpp);
