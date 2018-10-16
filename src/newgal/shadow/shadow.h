@@ -71,6 +71,9 @@ typedef struct _RealFBInfo {
         int height, width;
         int depth;
         int pitch;
+#ifdef _MGGAL_DRMCON
+        int fd;
+#endif
         void* fb;
         void * real_device;
 } RealFBInfo;

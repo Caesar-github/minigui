@@ -521,13 +521,16 @@ static void* task_do_update (void* data)
                             _shadowfbheader->ncolors,
                             (GAL_Color*)((char*)_shadowfbheader + _shadowfbheader->palette_offset));
                     SetRect (&_shadowfbheader->dirty_rect, 0, 0,
-                            _shadowfbheader->width, _shadowfbheader->height); 
+                            _shadowfbheader->width, _shadowfbheader->height);
                 }
+#ifdef _MGGAL_DRMCON
                 if (bo != NULL) {
+                    this->hidden->realfb_info->fd = getdrmdispfd(bo);
                     this->hidden->realfb_info->fb = bo->ptr;
                     SetRect (&_shadowfbheader->dirty_rect, 0, 0,
-                              _shadowfbheader->width, _shadowfbheader->height); 
+                              _shadowfbheader->width, _shadowfbheader->height);
                 }
+#endif
                 __mg_shadow_fb_ops->refresh (_shadowfbheader,
                         this->hidden->realfb_info, &(_shadowfbheader->dirty_rect));
 
@@ -560,6 +563,7 @@ static void* task_do_update (void* data)
                     real_device->UpdateRects(real_device, 1, &dirty_rect);
 #ifdef _MGGAL_DRMCON
                 setdrmdisp(bo);
+                close(this->hidden->realfb_info->fd);
 #endif
             }
 

@@ -118,7 +118,8 @@ void shadow_rga_exit(void)
     pthread_mutex_destroy(&video_fb.mtx);
 }
 
-void shadow_rga_refresh(int src_w, int src_h, int dst_w, int dst_h, int rotate)
+void shadow_rga_refresh(int fd, int src_w, int src_h,
+                        int dst_w, int dst_h, int rotate)
 {
     int ret;
     int bpp;
@@ -128,14 +129,6 @@ void shadow_rga_refresh(int src_w, int src_h, int dst_w, int dst_h, int rotate)
     int srcFormat;
     int src1Format;
     int dstFormat;
-    int g_dst_fd;
-    bo_t *bo;
-    bo = getdrmdisp();
-    ret = c_RkRgaGetBufferFd(bo, &g_dst_fd);
-    if (ret) {
-        printf("c_RkRgaGetBufferFd error : %s\n", strerror(errno));
-        return;
-    }
 
     memset(&src, 0, sizeof(rga_info_t));
     src.fd = g_src_fd;
@@ -146,7 +139,7 @@ void shadow_rga_refresh(int src_w, int src_h, int dst_w, int dst_h, int rotate)
     src1.mmuFlag = 1;
 
     memset(&dst, 0, sizeof(rga_info_t));
-    dst.fd = g_dst_fd;
+    dst.fd = fd;
     dst.mmuFlag = 1;
 
     getdrmdispbpp(&bpp);
@@ -178,8 +171,6 @@ void shadow_rga_refresh(int src_w, int src_h, int dst_w, int dst_h, int rotate)
     ret = c_RkRgaBlit(&src, &dst, NULL);
     if (ret)
         printf("c_RkRgaBlit2 error : %s\n", strerror(errno));
-    setdrmdisp(bo);
-    close(g_dst_fd);
 }
 
 int yuv_draw(char *src_ptr, int src_fd, int src_w, int src_h) {
