@@ -349,7 +349,7 @@ static void buffer_init(struct device *dev, int num, int bpp)
         pitches[0] = bo->pitch;
         if (bpp == 32)
             ret = drmModeAddFB2(dev->fd, dev->mode.width, dev->mode.height,
-                                DRM_FORMAT_ABGR8888, handles, pitches, offsets, &fb_id, 0);
+                                DRM_FORMAT_XBGR8888, handles, pitches, offsets, &fb_id, 0);
         else
             ret = drmModeAddFB2(dev->fd, dev->mode.width, dev->mode.height,
                                 DRM_FORMAT_BGR565, handles, pitches, offsets, &fb_id, 0);

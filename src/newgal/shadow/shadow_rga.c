@@ -166,7 +166,7 @@ void shadow_rga_refresh(int fd, int src_w, int src_h,
 
     rga_set_rect(&src.rect, 0, 0, src_w, src_h, src_w, src_h, srcFormat);
     src.rotation = rotate;
-    src.blend = 0x800105;
+    src.blend = 0xff0105;
     rga_set_rect(&dst.rect, 0, 0, dst_w, dst_h, dst_w, dst_h, dstFormat);
     ret = c_RkRgaBlit(&src, &dst, NULL);
     if (ret)
