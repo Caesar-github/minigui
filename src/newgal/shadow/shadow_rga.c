@@ -118,7 +118,7 @@ void shadow_rga_exit(void)
     pthread_mutex_destroy(&video_fb.mtx);
 }
 
-void shadow_rga_refresh(int fd, int src_w, int src_h,
+void shadow_rga_refresh(int fd, int offset, int src_w, int src_h,
                         int dst_w, int dst_h, int rotate)
 {
     int ret;
@@ -131,7 +131,9 @@ void shadow_rga_refresh(int fd, int src_w, int src_h,
     int dstFormat;
 
     memset(&src, 0, sizeof(rga_info_t));
-    src.fd = g_src_fd;
+    src.fd = -1; //g_src_fd;
+    // The head exist minigui info, need make a offset.
+    src.virAddr = g_bo.ptr + offset;
     src.mmuFlag = 1;
 
     memset(&src1, 0, sizeof(rga_info_t));
