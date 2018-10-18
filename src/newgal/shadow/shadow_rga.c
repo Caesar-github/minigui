@@ -175,12 +175,11 @@ void shadow_rga_refresh(int fd, int offset, int src_w, int src_h,
         printf("c_RkRgaBlit2 error : %s\n", strerror(errno));
 }
 
-int yuv_draw(char *src_ptr, int src_fd, int src_w, int src_h) {
+int yuv_draw(char *src_ptr, int src_fd, int format, int src_w, int src_h) {
     int ret;
     rga_info_t src;
-    int Format;
-    rga_info_t dst;
 
+    rga_info_t dst;
     memset(&src, 0, sizeof(rga_info_t));
     src.fd = -1; //rga_src_fd;
     src.virAddr = src_ptr;
@@ -190,9 +189,7 @@ int yuv_draw(char *src_ptr, int src_fd, int src_w, int src_h) {
     dst.fd = video_fb.fb[video_fb.front_fb ^ 1];
     dst.mmuFlag = 1;
 
-    Format = RK_FORMAT_YCbCr_420_P;
-
-    rga_set_rect(&src.rect, 0, 0, src_w, src_h, src_w, src_h, Format);
+    rga_set_rect(&src.rect, 0, 0, src_w, src_h, src_w, src_h, format);
 
     // resize as a rect with src_w and src_h
     video_fb.width = src_w;

@@ -14,7 +14,7 @@ int shadow_rga_init(int size);
 void shadow_rga_exit(void);
 void shadow_rga_refresh(int fd, int offset, int src_w, int src_h,
                         int dst_w, int dst_h, int rotate);
-int yuv_draw(char *src_ptr, int src_fd, int src_w, int src_h);
+int yuv_draw(char *src_ptr, int src_fd, int format, int src_w, int src_h);
 
 #ifdef __cplusplus
 }
