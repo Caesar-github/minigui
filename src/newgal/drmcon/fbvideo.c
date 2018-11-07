@@ -1010,6 +1010,6 @@ static void FB_VideoQuit(_THIS)
 #endif
         sigma8654_hdmi_quit();
 #endif
-
+    drm_deinit();
 }
 
