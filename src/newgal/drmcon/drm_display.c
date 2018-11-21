@@ -501,13 +501,6 @@ void getdrmdispbpp(int *bpp)
     *bpp = pdev->mode.bpp;
 }
 
-int getdrmdispfd(struct bo *bo)
-{
-    int fd = -1;
-    c_RkRgaGetBufferFd(bo, &fd);
-    return fd;
-}
-
 #if 0
 int main(int argc, char **argv)
 {

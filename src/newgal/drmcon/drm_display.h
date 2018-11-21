@@ -21,6 +21,5 @@ struct bo *getdrmdisp(void);
 void setdrmdisp(struct bo *bo);
 int drm_setmode(int num, int bpp);
 void getdrmdispbpp(int *bpp);
-int getdrmdispfd(struct bo *bo);
 
 #endif

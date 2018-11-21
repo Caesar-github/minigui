@@ -525,7 +525,9 @@ static void* task_do_update (void* data)
                 }
 #ifdef _MGGAL_DRMCON
                 if (bo != NULL) {
-                    this->hidden->realfb_info->fd = getdrmdispfd(bo);
+#if ENABLE_RGA
+                    c_RkRgaGetBufferFd(bo, &this->hidden->realfb_info->fd);
+#endif
                     this->hidden->realfb_info->fb = bo->ptr;
                     SetRect (&_shadowfbheader->dirty_rect, 0, 0,
                               _shadowfbheader->width, _shadowfbheader->height);
@@ -563,7 +565,10 @@ static void* task_do_update (void* data)
                     real_device->UpdateRects(real_device, 1, &dirty_rect);
 #ifdef _MGGAL_DRMCON
                 setdrmdisp(bo);
-                close(this->hidden->realfb_info->fd);
+#if ENABLE_RGA
+                if (this->hidden->realfb_info->fd)
+                    close(this->hidden->realfb_info->fd);
+#endif
 #endif
             }
 
