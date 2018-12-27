@@ -5590,6 +5590,32 @@ HWND GUIAPI RegisterMouseHookWindow (HWND hwnd, DWORD flag)
 }
 #endif
 
+int GUIAPI RegisterMainWindow (HWND hWnd)
+{
+#ifdef _MGRM_PROCESSES
+    if (mgIsServer) {
+        MG_CHECK_RET (MG_IS_NORMAL_WINDOW(hWnd), -1);
+
+        return SendMessage (HWND_DESKTOP, MSG_MAINWIN_REGISTER, (WPARAM)hWnd, 0);
+    }else
+        return ERR_INV_HWND;
+#else
+    return SendMessage (HWND_DESKTOP, MSG_MAINWIN_REGISTER, (WPARAM)hWnd, 0);
+#endif
+}
+
+int GUIAPI UnregisterMainWindow (HWND hWnd)
+{
+#ifdef _MGRM_PROCESSES
+    if (mgIsServer) {
+        return SendMessage (HWND_DESKTOP, MSG_MAINWIN_UNREGISTER, (WPARAM)hWnd, 0);
+    }else
+        return ERR_IME_NOSUCHIMEWND;
+#else
+    return SendMessage (HWND_DESKTOP, MSG_MAINWIN_UNREGISTER, (WPARAM)hWnd, 0);
+#endif
+}
+
 /**************************** IME support ************************************/
 int GUIAPI RegisterIMEWindow (HWND hWnd)
 {

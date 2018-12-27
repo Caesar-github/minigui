@@ -137,6 +137,7 @@ build_qemu_ial_engine="no"
 
 dnl ial engines for real hardware
 build_cisco_touchpad_ial_engine="no"
+build_RKKeyboard_ial_engine="no"
 build_mstar_ial_engine="no"
 build_ipaq_h3600_ial_engine="no"
 build_nexus_ial_engine="no"
@@ -386,6 +387,10 @@ build_net_ial_engine=$enableval)
 AC_ARG_ENABLE(cisco_touchpad_ial,
 [  --enable-cisco_touchpad_ial	build the IAL engine for Cisco Touchpad <default=no>],
 build_cisco_touchpad_ial_engine=$enableval)
+
+AC_ARG_ENABLE(RKKeyboard_ial,
+[  --enable-RKKeyboard_ial	build the IAL engine for RKKeyboard <default=no>],
+build_RKKeyboard_ial_engine=$enableval)
 
 AC_ARG_ENABLE(mstar_ial,
 [  --enable-mstar_ial       build the IAL engine for MStar <default=no>],
@@ -876,7 +881,7 @@ CheckDRMCON()
                 [Define if include DRM console NEWGAL engine])
             VIDEO_SUBDIRS="$VIDEO_SUBDIRS drmcon"
             VIDEO_DRIVERS="$VIDEO_DRIVERS drmcon/libvideo_drmcon.la"
-
+            DEP_LIBS="$DEP_LIBS -ldrm"
             have_pciaccess="yes"
             AC_CHECK_LIB(pciaccess, pci_system_init,
                 DEP_LIBS="$DEP_LIBS -lpciaccess", have_pciaccess="no")
@@ -1834,6 +1839,12 @@ fi
 if test "x$build_cisco_touchpad_ial_engine" = "xyes"; then
     AC_DEFINE(_MGIAL_CISCO_TOUCHPAD, 1,
             [Define if include IAL engine for Cisco touchpad])
+    DEP_LIBS="$DEP_LIBS -lhid -lusb -lusb-1.0"
+fi
+
+if test "x$build_RKKeyboard_ial_engine" = "xyes"; then
+    AC_DEFINE(_MGIAL_RKKeyboard, 1,
+            [Define if include IAL engine for RKKeyboard])
     DEP_LIBS="$DEP_LIBS -lhid -lusb -lusb-1.0"
 fi
 

@@ -44,6 +44,8 @@
 extern "C" {
 #endif  /* __cplusplus */
 
+#define MAX_INPUTNUM	1
+
 #ifndef _MGRM_THREADS
 
 /* vtswitch */
@@ -96,7 +98,11 @@ typedef struct _kbddevice {
     int  (*Read)(unsigned char *buf,int *modifiers);
     void (*Suspend) (void);
     int  (*Resume) (void);
-	int  (*Read_1)(unsigned int *buf,int *modifiers);
+	int  (*Opens)(int ch, const char *dev);
+	void (*Closes)(int ch);
+	int  (*Reads)(int ch, unsigned int *buf,int *modifiers);
+	void (*Suspends) (int ch);
+	int  (*Resumes) (int ch);
 } KBDDEVICE;
 
 extern KBDDEVICE kbddev_tty;

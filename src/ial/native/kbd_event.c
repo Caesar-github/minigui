@@ -62,7 +62,11 @@ static void EVENT_GetModifierInfo(int *modifiers);
 static int  EVENT_Read(unsigned char *buf, int *modifiers);
 static void EVENT_Suspend(void);
 static int  EVENT_Resume(void);
-static int EVENT_Read_1(unsigned int *buf, int *modifiers);
+static int  EVENT_Opens(int ch, const char *);
+static void EVENT_Closes(int ch);
+static int  EVENT_Reads(int ch, unsigned int *buf, int *modifiers);
+static void EVENT_Suspends(int ch);
+static int  EVENT_Resumes(int ch);
 
 KBDDEVICE kbddev_event = {
     EVENT_Open,
@@ -71,10 +75,14 @@ KBDDEVICE kbddev_event = {
     EVENT_Read,
     EVENT_Suspend,
     EVENT_Resume,
-    EVENT_Read_1
+    EVENT_Opens,
+    EVENT_Closes,
+    EVENT_Reads,
+    EVENT_Suspends,
+    EVENT_Resume
 };
 
-static int kbd_fd;        /* file descriptor for keyboard */
+static int kbd_fd[MAX_INPUTNUM];        /* file descriptor for keyboard */
 
 /*
  * Open the keyboard.
@@ -109,16 +117,12 @@ static int EVENT_Open (const char *device)
                 *s++ = *p++;
             }
             *s = 0;
-
-            mknod (guess_device, S_IFCHR | 0x660, makedev (13, 64+id));
-#if 0
             {
                 char cmd[1024];
                 sprintf(cmd, "mknod %s c 13 %d > /dev/null 2>&1", guess_device, 64+id);
                 fprintf(stderr, "%s\n", cmd);
                 system(cmd);
             }
-#endif
             break;
         }
         fclose(fp);
@@ -129,11 +133,11 @@ static int EVENT_Open (const char *device)
         device = guess_device;
     }
 
-    kbd_fd = open(device, O_RDONLY | O_NOCTTY);
-    if (kbd_fd < 0)
+    kbd_fd[0] = open(device, O_RDONLY | O_NOCTTY);
+    if (kbd_fd[0] < 0)
         return -1;
 
-    return kbd_fd;
+    return kbd_fd[0];
 }
 
 /*
@@ -142,8 +146,8 @@ static int EVENT_Open (const char *device)
  */
 static void EVENT_Close(void)
 {
-    close(kbd_fd);
-    kbd_fd = -1;
+    close(kbd_fd[0]);
+    kbd_fd[0] = -1;
 }
 
 /*
@@ -168,7 +172,7 @@ static int EVENT_Read(unsigned char *buf, int *modifiers)
 
     *buf = 0;
 
-    cc=read(kbd_fd, &buftmp, sizeof(buftmp));
+    cc=read(kbd_fd[0], &buftmp, sizeof(buftmp));
     if (cc < 0) {
         if ((errno != EINTR) && (errno != EAGAIN))
             return 0;
@@ -185,37 +189,7 @@ static int EVENT_Read(unsigned char *buf, int *modifiers)
     }else{
         return 0;
     }
-	
 }
-
-static int EVENT_Read_1(unsigned int *buf, int *modifiers)
-{
-    int    cc;            /* characters read */
-    struct input_event buftmp;
-
-    *modifiers = 0;            /* no modifiers yet */
-
-    *buf = 0;
-
-    cc=read(kbd_fd, &buftmp, sizeof(buftmp));
-    if (cc < 0) {
-        if ((errno != EINTR) && (errno != EAGAIN))
-            return 0;
-        return -1;
-    }
-
-    if(buftmp.type) {
-        if(buftmp.value == 0) {
-            *buf = 0x8000;
-        }
-        *buf |= (unsigned char)(buftmp.code & 0x00ff);
-        // printf("keyboard: value=%d,code=%d,*buf=0x%08x\n",buftmp.value, buftmp.code, *buf);
-        return 1;
-    }else{
-        return 0;
-    }
-}
-
 
 /* activate_keyboard:
  *  Put keyboard into the mode we want.
@@ -230,10 +204,146 @@ static void EVENT_Suspend(void)
  */
 static int EVENT_Resume(void)
 {
-    kbd_fd = open (event_dev, O_NONBLOCK);
-    if (kbd_fd < 0) {
+    kbd_fd[0] = open (event_dev, O_NONBLOCK);
+    if (kbd_fd[0] < 0) {
         return -1;
     }else{
-        return kbd_fd;
+        return kbd_fd[0];
     }
 }
+
+static int EVENT_Opens (int ch, const char *device)
+{
+#if 0
+    char guess_device[PATH_MAX], *s=guess_device;
+    int id=0;
+
+    if (!device || !device[0]) { // the device is not specified, guess it
+        FILE *fp;
+        char tmp[1024];
+        fp = fopen("/proc/bus/input/devices", "r");
+        while (fgets(tmp, sizeof(tmp), fp)) {
+            const char *p;
+            if (! strstr(tmp, "Handlers=")) {
+                continue;
+            }
+            if (strstr(tmp, "mouse")) { // a mouse device, not a keyboard
+                continue;
+            }
+            if (!strstr(tmp, "key")) {// not a keyboard
+                continue;
+            }
+            if (! (p = strstr(tmp, "event"))) { // not support event interface
+                continue;
+            }
+            p += strlen("event");
+            s += sprintf(s, "/dev/input/event");
+            while (*p >= '0' && *p <= '9') {
+                id = id * 10 + *p - '0';
+                *s++ = *p++;
+            }
+            *s = 0;
+            {
+                char cmd[1024];
+                sprintf(cmd, "mknod %s c 13 %d > /dev/null 2>&1", guess_device, 64+id);
+                fprintf(stderr, "%s\n", cmd);
+                system(cmd);
+            }
+            break;
+        }
+        fclose(fp);
+
+        if (s == guess_device) {
+            return -1;
+        }
+        device = guess_device;
+    }
+	{
+		FILE *fp;
+		char tmp[1024];
+		sprintf(tmp, "/sys/class/input/input%d/uevent", ch);
+
+		fp = fopen(tmp, "r");
+		if(fp > 0) {
+			while (fgets(tmp, sizeof(tmp), fp)) {
+				const char *p;
+/*
+				if (! ((p = strstr(tmp, "rk29-keypad")) || (p = strstr(tmp, "rk816_pwrkey")))) {
+					continue;
+				}
+*/
+                printf("%s tmp = %s\n", __func__, tmp);
+				kbd_fd[ch] = open(device, O_RDONLY | O_NOCTTY);
+				if (kbd_fd[ch] < 0)
+					return -1;
+				
+				return kbd_fd[ch];
+	
+			}
+			fclose(fp);
+		}
+	
+	}
+	kbd_fd[ch] = -1;
+	return kbd_fd[ch];
+#else
+	kbd_fd[ch] = open(device, O_RDONLY | O_NOCTTY);
+	if (kbd_fd[ch] < 0)
+		return -1;
+  return kbd_fd[ch];
+#endif
+}
+
+static void EVENT_Closes(int ch)
+{
+    close(kbd_fd[ch]);
+    kbd_fd[ch] = -1;
+}
+
+static int EVENT_Reads(int ch, unsigned int *buf, int *modifiers)
+{
+    int    cc;            /* characters read */
+    struct input_event buftmp;
+
+    *modifiers = 0;            /* no modifiers yet */
+
+    *buf = 0;
+
+    cc=read(kbd_fd[ch], &buftmp, sizeof(buftmp));
+    if (cc < 0) {
+        if ((errno != EINTR) && (errno != EAGAIN))
+            return 0;
+        return -1;
+    }
+
+    if(buftmp.type) {
+        if(buftmp.value == 0) {
+            *buf = 0x80;
+        }
+        *buf |= (unsigned char)(buftmp.code & 0x007f);
+        // printf("keyboard: value=%d,code=%d,*buf=0x%08x\n",buftmp.value, buftmp.code, *buf);
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
+
+/* activate_keyboard:
+ *  Put keyboard into the mode we want.
+ */
+static void EVENT_Suspends(int ch)
+{
+    EVENT_Closes(ch);
+}
+
+static int EVENT_Resumes(int ch)
+{
+    kbd_fd[ch] = open (event_dev, O_NONBLOCK);
+    if (kbd_fd[ch] < 0) {
+        return -1;
+    }else{
+        return kbd_fd[ch];
+    }
+}
+

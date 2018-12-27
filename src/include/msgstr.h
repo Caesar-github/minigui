@@ -380,8 +380,8 @@ char * __mg_msgstr3 [] =
     "MSG_EXITMENULOOP        ",     // 0x0175
     "MSG_CONTEXTMENU         ",     // 0x0176
     "MSG_NEXTMENU            ",     // 0x0177
-    "",                             // 0x0178
-    "",                             // 0x0179
+    "MSG_MAINWIN_REGISTER    ",     // 0x0178
+    "MSG_MAINWIN_UNREGISTER  ",     // 0x0179
     "",                             // 0x017A
     "",                             // 0x017B
     "",                             // 0x017C

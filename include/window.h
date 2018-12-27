@@ -593,6 +593,12 @@ extern "C" {
 
 #define MSG_KEYUP_LONG    0x001A
 
+#define MSG_MAINWIN_KEYDOWN         0x001B
+#define MSG_MAINWIN_KEYUP           0x001C
+#define MSG_MAINWIN_KEYLONGPRESS    0x001D
+#define MSG_MAINWIN_KEYALWAYSPRESS  0x001E
+#define MSG_MAINWIN_KEYUP_LONG      0x001F
+
 /**
  * \def DEF_LPRESS_TIME
  * \brief Default long pressed time of a key.
@@ -2177,6 +2183,9 @@ typedef struct _DRAGINFO {
 #define MSG_EXITMENULOOP    0x0175
 #define MSG_CONTEXTMENU     0x0176
 #define MSG_NEXTMENU        0x0177
+
+#define MSG_MAINWIN_REGISTER    0x0178
+#define MSG_MAINWIN_UNREGISTER  0x0179
 
 #define MSG_LASTMENUMSG     0x018F
 
@@ -7870,6 +7879,14 @@ MG_EXPORT int GUIAPI RegisterIMEWindow (HWND hWnd);
  * \sa RegisterIMEWindow
  */
 MG_EXPORT int GUIAPI UnregisterIMEWindow (HWND hWnd);
+
+MG_EXPORT int GUIAPI RegisterMainWindow (HWND hWnd);
+
+MG_EXPORT int GUIAPI UnregisterMainWindow (HWND hWnd);
+
+MG_EXPORT void GUIAPI EnableKeyMessage(void);
+
+MG_EXPORT void GUIAPI DisableKeyMessage(void);
 
 /**
  * \fn int GUIAPI GetIMEStatus (int StatusCode)

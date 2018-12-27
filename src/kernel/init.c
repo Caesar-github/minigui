@@ -43,6 +43,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <sys/prctl.h>
+#include <linux/netlink.h>
+#include <sys/socket.h>
+
 #include "common.h"
 #include "minigui.h"
 
@@ -182,6 +186,66 @@ static void ParseEvent (PLWEVENT lwe)
 
 
 extern struct timeval __mg_event_timeout;
+static int need_reinit_input = 0;
+static pthread_t __mg_monitor = 0;
+
+static void *input_monitor_thread(void *arg)
+{
+    int sockfd;
+    int i, j, len;
+    char buf[512];
+    struct iovec iov;
+    struct msghdr msg;
+    struct sockaddr_nl sa;
+
+    sem_post ((sem_t*)arg);
+    prctl(PR_SET_NAME, "input_monitor", 0, 0, 0);
+
+    memset(&sa, 0, sizeof(sa));
+    sa.nl_family = AF_NETLINK;
+    sa.nl_groups = NETLINK_KOBJECT_UEVENT;
+    sa.nl_pid = 0;
+    memset(&msg, 0, sizeof(msg));
+    iov.iov_base = (void *)buf;
+    iov.iov_len = sizeof(buf);
+    msg.msg_name = (void *)&sa;
+    msg.msg_namelen = sizeof(sa);
+    msg.msg_iov = &iov;
+    msg.msg_iovlen = 1;
+
+    sockfd = socket(AF_NETLINK, SOCK_RAW, NETLINK_KOBJECT_UEVENT);
+    if (sockfd == -1) {
+        printf("socket creating failed:%s\n", strerror(errno));
+        goto err_event_monitor;
+    }
+
+    if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) == -1) {
+        printf("bind error:%s\n", strerror(errno));
+        goto err_event_monitor;
+    }
+
+    while (1) {
+        memset(buf, 0, sizeof(buf));
+        len = recvmsg(sockfd, &msg, 0);
+        if (len < 0) {
+            printf("receive errno = %d\n", errno);
+        } else if (len < 32 || len > sizeof(buf)) {
+            printf("invalid message");
+        } else {
+            if (strstr(buf, "event")) {
+                if (strstr(buf, "remove")) {
+                    need_reinit_input = 1;
+                } else if (strstr(buf, "add")) {
+                    need_reinit_input = 1;
+                }
+            }
+        }
+    }
+
+err_event_monitor:
+    pthread_detach(pthread_self());
+    pthread_exit(NULL);
+}
 
 static void* EventLoop (void* data)
 {
@@ -194,7 +258,12 @@ static void* EventLoop (void* data)
     sem_post ((sem_t*)data);
 
     while (__mg_quiting_stage > _MG_QUITING_STAGE_EVENT) {
-        event = IAL_WaitEvent (IAL_KEYEVENT, 0,
+        if (need_reinit_input) {
+            need_reinit_input = 0;
+            if (IAL_ReInitInput)
+                IAL_ReInitInput();
+        }
+        event = IAL_WaitEvent (IAL_MOUSEEVENT | IAL_KEYEVENT, 0,
                         NULL, NULL, NULL, (void*)&__mg_event_timeout);
         if (event < 0)
             continue;
@@ -318,6 +387,9 @@ static BOOL SystemThreads(void)
     // this thread should also have a higher priority.
     pthread_create (&__mg_parsor, NULL, EventLoop, &wait);
     pthread_detach (__mg_parsor);
+    sem_wait (&wait);
+    pthread_create(&__mg_monitor, NULL, input_monitor_thread, &wait);
+    pthread_detach (__mg_monitor);
     sem_wait (&wait);
 
     sem_destroy (&wait);
@@ -573,6 +645,7 @@ void GUIAPI TerminateGUI (int not_used)
 
     /* DesktopProc() will set __mg_quiting_stage to _MG_QUITING_STAGE_EVENT */
     pthread_join (__mg_parsor, NULL);
+    pthread_join (__mg_monitor, NULL);
 
     deleteThreadInfoKey ();
     license_destroy();

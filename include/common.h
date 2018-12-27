@@ -1273,6 +1273,9 @@ typedef struct _GAL_Rect {
 #define SCANCODE_VOLDOWN                114
 #define SCANCODE_VOLUP                  115
 
+#define SCANCODE_MODE                  117
+#define SCANCODE_MUTE                  120
+
 #define SCANCODE_PAUSE                  119
 
 #define SCANCODE_POWER                  120

@@ -749,6 +749,56 @@ static int HandleSpecialKey (int scancode)
     return 0;
 }
 
+static int isDisableKeyMessage = 0;
+
+void GUIAPI EnableKeyMessage(void)
+{
+    isDisableKeyMessage = 0;
+}
+
+void GUIAPI DisableKeyMessage(void)
+{
+    isDisableKeyMessage = 1;
+}
+
+static LRESULT KeyMessageSendtoMainwin (UINT message, int scancode, DWORD status)
+{
+    static prekeydown = -1;
+
+    if (__mg_mainwin_wnd) {
+        if (message == MSG_KEYDOWN)
+            PostMessage (__mg_mainwin_wnd, 
+                MSG_MAINWIN_KEYDOWN, (WPARAM)scancode, (LPARAM)status);
+        else if (message == MSG_KEYUP)
+            PostMessage (__mg_mainwin_wnd, 
+                MSG_MAINWIN_KEYUP, (WPARAM)scancode, (LPARAM)status);
+        else if (message == MSG_KEYLONGPRESS)
+            PostMessage (__mg_mainwin_wnd, 
+                MSG_MAINWIN_KEYLONGPRESS, (WPARAM)scancode, (LPARAM)status);
+        else if (message == MSG_KEYALWAYSPRESS)
+            PostMessage (__mg_mainwin_wnd, 
+                MSG_MAINWIN_KEYALWAYSPRESS, (WPARAM)scancode, (LPARAM)status);
+        else if (message == MSG_KEYUP_LONG)
+            PostMessage (__mg_mainwin_wnd,
+                MSG_MAINWIN_KEYUP_LONG, (WPARAM)scancode, (LPARAM)status);
+
+        if (prekeydown == scancode) {
+            if (message == MSG_KEYUP_LONG || message == MSG_KEYUP) {
+                prekeydown = -1;
+            }
+
+            return -1;
+        }
+
+        if (isDisableKeyMessage == 1) {
+            prekeydown = scancode;
+
+            return -1;
+        }
+    }
+
+    return 0;
+}
 static LRESULT KeyMessageHandler (UINT message, int scancode, DWORD status)
 {
     static int mg_altdown = 0;
@@ -1912,6 +1962,30 @@ static int dskUnregisterIMEWnd (HWND hwnd)
     return ERR_OK;
 }
 
+static int dskRegisterMainWinWnd (HWND hwnd)
+{
+    if (__mg_mainwin_wnd != 0)
+        return ERR_IME_TOOMUCHIMEWND;
+
+    if (!gui_CheckAndGetMainWindowPtr (hwnd))
+        return ERR_INV_HWND;
+
+    __mg_mainwin_wnd = hwnd;
+
+    return ERR_OK;
+}
+
+static int dskUnregisterMainWinWnd (HWND hwnd)
+{
+    if (__mg_mainwin_wnd != hwnd)
+        return ERR_IME_NOSUCHIMEWND;
+
+    __mg_mainwin_wnd = 0;
+
+    return ERR_OK;
+}
+
+
 #if 0
 static int dskSetIMEStatus (int iIMEStatusCode, int Value)
 {
@@ -2010,7 +2084,8 @@ LRESULT DesktopWinProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             TrackPopupMenu (sg_DesktopMenu, TPM_DEFAULT, 
                 0, g_rcScr.bottom, HWND_DESKTOP);
         }
-
+        if (KeyMessageSendtoMainwin (message, (int)wParam, (DWORD)lParam))
+			return 0;
         if (sg_ptmi) {
             if (PopupMenuTrackProc (sg_ptmi, message, wParam, lParam))
                 return KeyMessageHandler (message, (int)wParam, (DWORD)lParam);
@@ -2177,6 +2252,12 @@ LRESULT DesktopWinProc (HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             
         case MSG_IME_UNREGISTER:
             return dskUnregisterIMEWnd ((HWND)wParam);
+
+		case MSG_MAINWIN_REGISTER:
+            return dskRegisterMainWinWnd ((HWND)wParam);
+            
+        case MSG_MAINWIN_UNREGISTER:
+            return dskUnregisterMainWinWnd ((HWND)wParam);
             
         case MSG_IME_SETSTATUS:
             return dskSetIMEStatus ((int)wParam, (int)lParam);

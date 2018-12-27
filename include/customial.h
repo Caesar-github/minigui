@@ -96,6 +96,7 @@ typedef struct tagINPUT
             fd_set *except, struct timeval *timeout);
 
     char mdev [MAX_PATH + 1];
+    int (*reinit_input) (void);
 }INPUT;
 
 #ifdef _MGIAL_CUSTOM

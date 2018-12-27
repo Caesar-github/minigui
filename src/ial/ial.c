@@ -108,6 +108,9 @@
 #ifdef _MGIAL_CISCO_TOUCHPAD
     #include "cisco_touchpad.h"
 #endif
+#ifdef _MGIAL_RKKeyboard
+    #include "RKKeyboard.h"
+#endif
 #ifdef _MGIAL_MSTAR
     #include "mstarial.h"
 #endif
@@ -184,6 +187,11 @@ static INPUT inputs [] =
 #ifdef _MGIAL_CISCO_TOUCHPAD
     {"cisco_touchpad", InitCiscoTouchpadInput, TermCiscoTouchpadInput},
 #endif
+
+#ifdef _MGIAL_RKKeyboard
+    {"RKKeyboard", InitRKInput, TermRKInput},
+#endif
+
 #ifdef _MGIAL_MSTAR
     {"mstar", InitMStarInput, TermMStarInput},
 #endif

@@ -174,6 +174,7 @@ static inline int IAL_ResumeKeyboard (void)
 }
 
 #define IAL_WaitEvent           (*__mg_cur_input->wait_event)
+#define IAL_ReInitInput         (*__mg_cur_input->reinit_input)
 
 #define IAL_MType               (__mg_cur_input->mtype)
 #define IAL_MDev                (__mg_cur_input->mdev)

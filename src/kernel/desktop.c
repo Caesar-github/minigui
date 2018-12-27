@@ -59,6 +59,8 @@ HWND __mg_capture_wnd;
 /* handle to the ime window - server only. */
 HWND __mg_ime_wnd;
 
+HWND __mg_mainwin_wnd;
+
 IME_STATUS_INFO __mg_ime_status_info;
 
 static HWND sg_hCaretWnd;
