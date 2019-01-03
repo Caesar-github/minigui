@@ -9928,6 +9928,7 @@ MG_EXPORT void GUIAPI MessageBeep (DWORD dwBeep);
     /** @} end of window_fns */
     /** @} end of fns */
 
+MG_EXPORT void GUIAPI Shadow_cw_ccw_switch(int iscw);
 #ifdef __cplusplus
 }
 #endif  /* __cplusplus */

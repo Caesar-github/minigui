@@ -171,6 +171,7 @@ again:
 
 static ShadowFBHeader* _shadowfbheader;
 
+RealFBInfo * __mg_realfb_info;
 DWORD __mg_shadow_rotate_flags;
 extern void (*__mg_ial_change_mouse_xy_hook)(int* x, int* y);
 extern GAL_Surface* __gal_screen;
@@ -338,6 +339,7 @@ static int RealEngine_GetInfo (RealFBInfo * realfb_info)
         realfb_info->flags = _ROT_DIR_VFLIP;
 
     __mg_shadow_rotate_flags = realfb_info->flags;
+    __mg_realfb_info = realfb_info;
 
     if (real_device->screen->format->MSBLeft) {
         if (realfb_info->flags & _ROT_DIR_CW)
@@ -1013,6 +1015,20 @@ static int SHADOW_SetColors (_THIS, int firstcolor, int ncolors,
     }
 #endif
     return 0;
+}
+
+void GUIAPI Shadow_cw_ccw_switch(int iscw)
+{
+    if (iscw) {
+        __mg_realfb_info->flags = _ROT_DIR_CW;
+        __mg_shadow_fb_ops->refresh = refresh_cw_msb_right;
+        __mg_ial_change_mouse_xy_hook = change_mouseXY_cw;
+    } else {
+        __mg_realfb_info->flags = _ROT_DIR_CCW;
+        __mg_shadow_fb_ops->refresh = refresh_ccw_msb_right;
+        __mg_ial_change_mouse_xy_hook = change_mouseXY_ccw;
+    }
+    __mg_shadow_rotate_flags = __mg_realfb_info->flags;
 }
 
 #endif /* _MGGAL_SHADOW */
