@@ -2195,6 +2195,7 @@ typedef struct _DRAGINFO {
      * \defgroup user_msgs User-defined messages
      * @{
      */
+#define MSG_DISPLAY_CHANGED 0x0200
 
 #define MSG_FIRSTUSERMSG    0x0800
 

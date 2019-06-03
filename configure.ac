@@ -893,6 +893,8 @@ CheckDRMCON()
 
             fi
         fi
+
+        PKG_CHECK_MODULES(PIXMAN, [pixman-1])
     fi
 }
 

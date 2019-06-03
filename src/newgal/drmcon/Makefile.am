@@ -5,6 +5,8 @@ AM_CPPFLAGS = -I$(abs_top_srcdir)/src/include -I$(abs_top_srcdir)/include \
 
 noinst_LTLIBRARIES = libvideo_drmcon.la
 libvideo_drmcon_la_SOURCES = $(DRMCON_SRCS)
+libvideo_drmcon_la_CFLAGS = $(PIXMAN_CFLAGS)
+libvideo_drmcon_la_LDFLAGS = $(PIXMAN_LIBS)
 
 DRMCON_SRCS = \
     fbvideo.c fbvideo.h \

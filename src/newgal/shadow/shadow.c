@@ -505,7 +505,18 @@ static void* task_do_update (void* data)
             break;
         }
 
-        if (_shadowfbheader->dirty || _shadowfbheader->palette_changed) 
+        if (!access("/tmp/.minigui_freeze", F_OK)) {
+           __mg_shadow_fb_ops->sleep ();
+           continue;
+        }
+
+#ifdef _MGGAL_DRMCON
+        if (drm_invalide()) {
+            _shadowfbheader->dirty = TRUE;
+        }
+#endif
+
+        if (_shadowfbheader->dirty || _shadowfbheader->palette_changed)
         {
 #ifdef _MGRM_PROCESSES
             _sysvipc_sem_op (this->hidden->semid, 0, -1);
@@ -515,7 +526,7 @@ static void* task_do_update (void* data)
 
             if (real_device) {
 #ifdef _MGGAL_DRMCON
-                struct bo *bo = NULL;
+                struct drm_bo *bo = NULL;
                 bo = getdrmdisp();
 #endif
                 if (_shadowfbheader->palette_changed) {
@@ -528,7 +539,7 @@ static void* task_do_update (void* data)
 #ifdef _MGGAL_DRMCON
                 if (bo != NULL) {
 #if ENABLE_RGA
-                    c_RkRgaGetBufferFd(bo, &this->hidden->realfb_info->fd);
+                    c_RkRgaGetBufferFd((bo_t)bo, &this->hidden->realfb_info->fd);
 #endif
                     this->hidden->realfb_info->fb = bo->ptr;
                     SetRect (&_shadowfbheader->dirty_rect, 0, 0,

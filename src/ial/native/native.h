@@ -44,7 +44,7 @@
 extern "C" {
 #endif  /* __cplusplus */
 
-#define MAX_INPUTNUM	1
+#define MAX_INPUTNUM	10
 
 #ifndef _MGRM_THREADS
 
