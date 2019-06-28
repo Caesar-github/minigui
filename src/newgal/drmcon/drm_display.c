@@ -159,6 +159,7 @@ bo_create(struct device *dev, int width, int height, int bpp)
         goto err;
     }
 
+    bo->fd = dev->fd;
     bo->handle = arg.handle;
     bo->size = arg.size;
     bo->pitch = arg.pitch;
@@ -525,6 +526,56 @@ static void drm_free(struct device *dev)
     dev->mode.vdisplay = 0;
 }
 
+static void configure_plane_zpos (struct device *self, int plane_id)
+{
+    drmModeObjectPropertiesPtr props = NULL;
+    drmModePropertyPtr prop = NULL;
+    char *buf;
+    int i;
+    uint64_t min, max, zpos;
+
+    if (plane_id <= 0)
+        return;
+
+    if (drmSetClientCap (self->fd, DRM_CLIENT_CAP_ATOMIC, 1))
+        return;
+
+    props = drmModeObjectGetProperties (self->fd, plane_id,
+          DRM_MODE_OBJECT_PLANE);
+    if (!props)
+        goto out;
+
+    for (i = 0; i < props->count_props; i++) {
+        prop = drmModeGetProperty (self->fd, props->props[i]);
+        if (prop && !strcmp (prop->name, "ZPOS"))
+          break;
+        drmModeFreeProperty (prop);
+        prop = NULL;
+    }
+
+    if (!prop)
+        goto out;
+
+    min = prop->values[0];
+    max = prop->values[1];
+
+    zpos = max;
+
+    buf = getenv ("OVERLAY_PLANE_ZPOS");
+    if (buf)
+        zpos = atoi (buf);
+    else if (getenv ("OVERLAY_PLANE_ON_TOP"))
+        zpos = max;
+
+    printf("set plane zpos = %lld (%lld~%lld)", zpos, min, max);
+
+    drmModeObjectSetProperty (self->fd, plane_id,
+          DRM_MODE_OBJECT_PLANE, props->props[i], zpos);
+out:
+    drmModeFreeProperty (prop);
+    drmModeFreeObjectProperties (props);
+}
+
 static int drm_setup(struct device *dev)
 {
     drmModeConnectorPtr conn = NULL;
@@ -565,6 +616,8 @@ static int drm_setup(struct device *dev)
         fprintf(stderr, "drm find plane failed\n");
         goto err;
     }
+    configure_plane_zpos(dev, plane->plane_id);
+
     DRM_DEBUG("Best plane: %d\n", plane->plane_id);
 
     for (i = 0; i < NUM_DUMB_BO; i++) {
@@ -890,6 +943,12 @@ void setdrmdisp(struct drm_bo *bo)
 
 int drm_invalide(void)
 {
+    return pdev && pdev->drm_invalide;
+}
+
+void getdrmdispbpp(int *bpp)
+{
+    *bpp = pdev->mode.bpp;
     return pdev && pdev->drm_invalide;
 }
 

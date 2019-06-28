@@ -539,7 +539,7 @@ static void* task_do_update (void* data)
 #ifdef _MGGAL_DRMCON
                 if (bo != NULL) {
 #if ENABLE_RGA
-                    c_RkRgaGetBufferFd((bo_t)bo, &this->hidden->realfb_info->fd);
+                    c_RkRgaGetBufferFd((bo_t *)bo, &this->hidden->realfb_info->fd);
 #endif
                     this->hidden->realfb_info->fb = bo->ptr;
                     SetRect (&_shadowfbheader->dirty_rect, 0, 0,
