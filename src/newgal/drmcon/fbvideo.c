@@ -58,9 +58,6 @@
 #include "sysvideo.h"
 #include "pixels_c.h"
 #include "fbvideo.h"
-#include "fb3dfx.h"
-#include "fbmatrox.h"
-#include "fbneomagic.h"
 #include "drm_display.h"
 
 #ifdef _MGGAL_SIGMA8654 
