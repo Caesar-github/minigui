@@ -143,7 +143,7 @@ bo_create(struct device *dev, int width, int height, int bpp)
     };
     struct drm_bo *bo;
     uint32_t handles[4] = {0}, pitches[4] = {0}, offsets[4] = {0};
-    int format = bpp == 32 ? DRM_FORMAT_ABGR8888 : DRM_FORMAT_BGR565;
+    int format = bpp == 32 ? DRM_FORMAT_XBGR8888 : DRM_FORMAT_BGR565;
     int ret;
 
     bo = malloc(sizeof(struct drm_bo));
