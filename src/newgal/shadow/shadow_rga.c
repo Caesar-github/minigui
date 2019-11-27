@@ -194,7 +194,7 @@ int yuv_draw(char *src_ptr, int src_fd, int format, int src_w, int src_h) {
     // resize as a rect with src_w and src_h
     video_fb.width = src_w;
     video_fb.height = src_h;
-    rga_set_rect(&dst.rect, 0, 0, video_fb.width, video_fb.height, video_fb.width, video_fb.height, RK_FORMAT_YCrCb_420_P);
+    rga_set_rect(&dst.rect, 0, 0, video_fb.width, video_fb.height, video_fb.width, video_fb.height, RK_FORMAT_YCbCr_420_P);
     // do copy
     ret = c_RkRgaBlit(&src, &dst, NULL);
     if (ret)
