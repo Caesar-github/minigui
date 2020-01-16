@@ -23,7 +23,9 @@ typedef struct {
 
 static video_offscreen_fb video_fb;
 
-void *shadow_rga_g_bo_ptr()
+extern int c_RkRgaFree(bo_t *bo_info);
+
+void *shadow_rga_g_bo_ptr(void)
 {
     return g_bo.ptr;
 }
@@ -33,7 +35,7 @@ void *shadow_rga_g_bo_ptr()
 int shadow_rga_init(int size)
 {
     int ret;
-    struct bo bo;
+    struct drm_bo bo;
     int width, height, bpp;
     int i;
 

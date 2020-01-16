@@ -12,7 +12,7 @@ extern "C" {
 #include <rga/RgaApi.h>
 #endif
 
-void *shadow_rga_g_bo_ptr();
+void *shadow_rga_g_bo_ptr(void);
 int shadow_rga_init(int size);
 void shadow_rga_exit(void);
 void shadow_rga_refresh(int fd, int offset, int src_w, int src_h,

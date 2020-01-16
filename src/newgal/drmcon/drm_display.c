@@ -949,7 +949,6 @@ int drm_invalide(void)
 void getdrmdispbpp(int *bpp)
 {
     *bpp = pdev->mode.bpp;
-    return pdev && pdev->drm_invalide;
 }
 
 #ifndef __MINIGUI_LIB__
