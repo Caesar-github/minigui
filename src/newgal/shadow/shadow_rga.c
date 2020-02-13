@@ -242,7 +242,7 @@ MG_EXPORT void GUIAPI shadow_rga_switch(void *src_ptr, int src_fd, int src_fmt, 
     dst_w = g_rcScr.right;
     dst_h = g_rcScr.bottom;
     dst.mmuFlag = 1;
-    rga_set_rect(&dst.rect, 0, 0, src_w, src_h, dst_w, dst_h, RK_FORMAT_YCrCb_420_P);
+    rga_set_rect(&dst.rect, 0, 0, src_w, src_h, dst_w, dst_h, RK_FORMAT_YCbCr_420_P);
 
     if (c_RkRgaBlit(&src, &dst, NULL)) {
         printf("%s: rga fail\n", __func__);
