@@ -872,6 +872,9 @@ CheckDRMCON()
     AC_ARG_ENABLE(videodrmcon,
 [  --enable-videodrmcon      include DRM console NEWGAL engine <default=yes>],
     enable_video_drmcon=$enableval)
+    AC_ARG_ENABLE(pixman,
+[  --enable-pixman      include DRM console NEWGAL engine <default=yes>],
+    enable_pixman=$enableval)
     if test x$enable_video_drmcon = xyes; then
         AC_MSG_CHECKING(for DRM console support)
         video_drmcon=yes
@@ -894,7 +897,9 @@ CheckDRMCON()
             fi
         fi
 
-        PKG_CHECK_MODULES(PIXMAN, [pixman-1])
+        if test x$enable_pixman = xyes; then
+            PKG_CHECK_MODULES(PIXMAN, [pixman-1])
+        fi
     fi
 }
 

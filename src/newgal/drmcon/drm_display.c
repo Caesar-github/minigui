@@ -1,5 +1,7 @@
 #include <fcntl.h>
+#if !DRM_VOP_SCALE
 #include <pixman.h>
+#endif
 #include <poll.h>
 #include <signal.h>
 #include <stdio.h>
@@ -15,8 +17,6 @@
 
 #define MAX_FB      3
 #define NUM_DUMB_BO 2
-
-//#define DRM_VOP_SCALE
 
 #define DEBUG
 #ifdef DEBUG
@@ -628,7 +628,7 @@ static int drm_setup(struct device *dev)
         }
         DRM_DEBUG("Created dumb bo fb: %d\n", dev->dumb_bo[i]->fb_id);
 
-#ifdef DRM_VOP_SCALE
+#if DRM_VOP_SCALE
         // Only need one dumb bo to setup crtc
         break;
 #endif
@@ -832,6 +832,7 @@ static void drm_wait_flip(struct device* dev, int timeout)
     }
 }
 
+#if !DRM_VOP_SCALE
 static void
 drm_scale_bo(struct device *dev, struct drm_bo*src_bo, struct drm_bo *dst_bo,
              int sw, int sh, int dw, int dh, double scale)
@@ -859,6 +860,7 @@ drm_scale_bo(struct device *dev, struct drm_bo*src_bo, struct drm_bo *dst_bo,
     pixman_image_unref (src_img);
     pixman_image_unref (dst_img);
 }
+#endif
 
 void setdrmdisp(struct drm_bo *bo)
 {
@@ -905,7 +907,7 @@ void setdrmdisp(struct drm_bo *bo)
     crtc_x = (dev->mode.hdisplay - crtc_w) / 2;
     crtc_y = (dev->mode.vdisplay - crtc_h) / 2;
 
-#ifndef DRM_VOP_SCALE
+#if !DRM_VOP_SCALE
     // Software scale
     dev->current_dumb = ++dev->current_dumb % NUM_DUMB_BO;
     drm_scale_bo(dev, bo, dev->dumb_bo[dev->current_dumb], dev->mode.width,
