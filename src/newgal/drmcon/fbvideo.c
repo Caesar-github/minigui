@@ -69,8 +69,6 @@ extern int sigma8654_hdmi_quit();
 #define FBCON_DEBUG   1
 */
 
-#define DRM_FB_NUM    3
-
 /* Initialization/Query functions */
 static int FB_GetFBInfo(VIDEO_MEM_INFO *video_mem_info);
 static int FB_VideoInit(_THIS, GAL_PixelFormat *vformat);
@@ -102,18 +100,7 @@ static void FB_RestorePalette(_THIS);
 /* FB driver bootstrap functions */
 static int FB_Available(void)
 {
-    int console;
-    const char *GAL_fbdev;
-
-    GAL_fbdev = getenv("FRAMEBUFFER");
-    if ( GAL_fbdev == NULL ) {
-        GAL_fbdev = "/dev/fb0";
-    }
-    console = open(GAL_fbdev, O_RDWR, 0);
-    if ( console >= 0 ) {
-        close(console);
-    }
-    return(console >= 0);
+    return 1;
 }
 
 static void FB_DeleteDevice(GAL_VideoDevice *device)
@@ -298,7 +285,7 @@ static int FB_VideoInit(_THIS, GAL_PixelFormat *vformat)
     if (vformat->BitsPerPixel == 0)
         vformat->BitsPerPixel = 32;
 
-    drm_init(DRM_FB_NUM, vformat->BitsPerPixel);
+    drm_init(vformat->BitsPerPixel);
     getdrmdispinfo(&bo, &w, &h);
     mapped_offset = bo.offset;
     mapped_memlen = bo.size;
@@ -424,7 +411,6 @@ static GAL_Surface *FB_SetVideoMode(_THIS, GAL_Surface *current,
         FB_RestorePalette (this);
     }
 
-    drm_setmode(DRM_FB_NUM, bpp);
     getdrmdispinfo(&bo, &w, &h);
 
     if (bpp == 32) {
