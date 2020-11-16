@@ -60,6 +60,8 @@
 #include "fbvideo.h"
 #include "drm_display.h"
 
+#define LEN_MODE 20
+
 #ifdef _MGGAL_SIGMA8654 
 extern int sigma8654_hdmi_init();
 extern int sigma8654_hdmi_quit();
@@ -282,8 +284,14 @@ static int FB_VideoInit(_THIS, GAL_PixelFormat *vformat)
     int i;
     int w, h;
 
-    if (vformat->BitsPerPixel == 0)
+    char mode[LEN_MODE+1];
+    int depth;
+
+    if (GetMgEtcValue ("drmcon", "defaultmode", mode, LEN_MODE) >= 0){
+        vformat->BitsPerPixel = atoi (strrchr (mode, '-') + 1);
+    } else {
         vformat->BitsPerPixel = 32;
+    }
 
     drm_init(vformat->BitsPerPixel);
     getdrmdispinfo(&bo, &w, &h);

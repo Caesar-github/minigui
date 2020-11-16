@@ -15,7 +15,7 @@
 #include <xf86drmMode.h>
 #include <drm_fourcc.h>
 
-#define NUM_DUMB_BO 1
+#define NUM_DUMB_BO 2
 
 #define DEBUG
 #ifdef DEBUG
@@ -141,11 +141,9 @@ bo_create(struct device *dev, int width, int height, int bpp)
     };
     struct drm_bo *bo;
     uint32_t handles[4] = {0}, pitches[4] = {0}, offsets[4] = {0};
-#if ENABLE_RGA
-    int format = bpp == 32 ? DRM_FORMAT_XBGR8888 : DRM_FORMAT_BGR565;
-#else
+
     int format = bpp == 32 ? DRM_FORMAT_ABGR8888 : DRM_FORMAT_BGR565;
-#endif
+
     int ret;
 
     bo = malloc(sizeof(struct drm_bo));
@@ -609,7 +607,7 @@ static int drm_setup(struct device *dev)
     DRM_DEBUG("Best plane: %d\n", plane->plane_id);
 
     for (i = 0; i < NUM_DUMB_BO; i++) {
-        dev->dumb_bo[i] = bo_create(dev, mode->hdisplay, mode->vdisplay, 32);
+        dev->dumb_bo[i] = bo_create(dev, mode->hdisplay, mode->vdisplay, dev->mode.bpp);
         if (!dev->dumb_bo[i]) {
             fprintf(stderr, "create dumb bo %d failed\n", i);
             goto err;
@@ -708,16 +706,16 @@ int drm_init(int bpp)
 
     drmSetClientCap(pdev->fd, DRM_CLIENT_CAP_UNIVERSAL_PLANES, 1);
 
-    ret = drm_setup(pdev);
-    if (ret) {
-        fprintf(stderr, "drm setup failed\n");
-        goto err_drm_setup;
-    }
-
     ret = alloc_fb(pdev, NUM_DUMB_BO, bpp);
     if (ret) {
         fprintf(stderr, "alloc fb failed\n");
         goto err_alloc_fb;
+    }
+
+    ret = drm_setup(pdev);
+    if (ret) {
+        fprintf(stderr, "drm setup failed\n");
+        goto err_drm_setup;
     }
 
     pdev->drm_pollfd.fd = pdev->fd;
