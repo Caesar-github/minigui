@@ -613,11 +613,6 @@ static int drm_setup(struct device *dev)
             goto err;
         }
         DRM_DEBUG("Created dumb bo fb: %d\n", dev->dumb_bo[i]->fb_id);
-
-#if DRM_VOP_SCALE
-        // Only need one dumb bo to setup crtc
-        break;
-#endif
     }
 
     dev->current_dumb = 0;
