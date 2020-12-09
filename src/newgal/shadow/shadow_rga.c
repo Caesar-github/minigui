@@ -25,6 +25,9 @@ static video_offscreen_fb video_fb;
 
 extern int c_RkRgaFree(bo_t *bo_info);
 
+extern int get_g_rcScr_right(void);
+extern int get_g_rcScr_bottom(void);
+
 void *shadow_rga_g_bo_ptr(void)
 {
     return g_bo.ptr;
@@ -182,6 +185,18 @@ void shadow_rga_refresh(int fd, int offset, int src_w, int src_h,
         printf("c_RkRgaBlit2 error : %s\n", strerror(errno));
 }
 
+void shadow_rga_refresh90(int fd, int offset, int src_w, int src_h,
+                          int dst_w, int dst_h, int rotate)
+{
+    shadow_rga_refresh(fd, offset, src_w, src_h, dst_w, dst_h, HAL_TRANSFORM_ROT_90);
+}
+
+void shadow_rga_refresh270(int fd, int offset, int src_w, int src_h,
+                           int dst_w, int dst_h, int rotate)
+{
+    shadow_rga_refresh(fd, offset, src_w, src_h, dst_w, dst_h, HAL_TRANSFORM_ROT_270);
+}
+
 int yuv_draw(char *src_ptr, int src_fd, int format, int src_w, int src_h) {
     int ret;
     rga_info_t src;
@@ -214,14 +229,14 @@ int yuv_draw(char *src_ptr, int src_fd, int format, int src_w, int src_h) {
     return ret;
 }
 
-MG_EXPORT void GUIAPI shadow_rga_get_user_fd(int *fd, int *screen_w, int *screen_h)
+void shadow_rga_get_user_fd(int *fd, int *screen_w, int *screen_h)
 {
     *fd = video_fb.fb[USER_BO_SEQ];
-    *screen_w = g_rcScr.right;
-    *screen_h = g_rcScr.bottom;
+    *screen_w = get_g_rcScr_right();
+    *screen_h = get_g_rcScr_bottom();
 }
 
-MG_EXPORT void GUIAPI shadow_rga_switch(void *src_ptr, int src_fd, int src_fmt, int src_w, int src_h)
+void shadow_rga_switch(void *src_ptr, int src_fd, int src_fmt, int src_w, int src_h)
 {
     rga_info_t src;
     rga_info_t dst;
@@ -239,8 +254,8 @@ MG_EXPORT void GUIAPI shadow_rga_switch(void *src_ptr, int src_fd, int src_fmt, 
 
     memset(&dst, 0, sizeof(rga_info_t));
     dst.fd = video_fb.fb[video_fb.front_fb ^ 1];
-    dst_w = g_rcScr.right;
-    dst_h = g_rcScr.bottom;
+    dst_w = get_g_rcScr_right();
+    dst_h = get_g_rcScr_bottom();
     dst.mmuFlag = 1;
     rga_set_rect(&dst.rect, 0, 0, src_w, src_h, dst_w, dst_h, RK_FORMAT_YCbCr_420_P);
 
@@ -254,6 +269,12 @@ MG_EXPORT void GUIAPI shadow_rga_switch(void *src_ptr, int src_fd, int src_fmt, 
     video_fb.height = dst_h;
     video_fb.front_fb ^= 1;
     pthread_mutex_unlock(&video_fb.mtx);
+}
+
+
+void shadow_rga_get_buffer_fd(void *bo, int *fd)
+{
+    c_RkRgaGetBufferFd((bo_t *)bo, fd);
 }
 
 #endif
