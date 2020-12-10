@@ -186,13 +186,13 @@ void shadow_rga_refresh(int fd, int offset, int src_w, int src_h,
 }
 
 void shadow_rga_refresh90(int fd, int offset, int src_w, int src_h,
-                          int dst_w, int dst_h, int rotate)
+                          int dst_w, int dst_h)
 {
     shadow_rga_refresh(fd, offset, src_w, src_h, dst_w, dst_h, HAL_TRANSFORM_ROT_90);
 }
 
 void shadow_rga_refresh270(int fd, int offset, int src_w, int src_h,
-                           int dst_w, int dst_h, int rotate)
+                           int dst_w, int dst_h)
 {
     shadow_rga_refresh(fd, offset, src_w, src_h, dst_w, dst_h, HAL_TRANSFORM_ROT_270);
 }
