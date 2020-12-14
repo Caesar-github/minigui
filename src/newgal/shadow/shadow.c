@@ -413,7 +413,7 @@ static void RealEngine_Sleep(void)
 #ifdef WIN32
     win_sleep (20);
 #else
-    usleep(2000);
+    usleep(100000);
 #endif
     return ;
 }
