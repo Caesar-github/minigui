@@ -105,7 +105,7 @@ typedef struct _ShadowFBOps {
         void (*refresh) (ShadowFBHeader* shadowfb_header, RealFBInfo* realfb_info, void* update);
 } ShadowFBOps;
 
-ShadowFBOps * __mg_shadow_fb_ops;
+//ShadowFBOps * __mg_shadow_fb_ops;
 #ifdef __cplusplus  
 }
 #endif  /* __cplusplus */

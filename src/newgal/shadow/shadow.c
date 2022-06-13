@@ -83,6 +83,7 @@ union semun {
 #define SHADOWVID_DRIVER_NAME "shadow"
 #include "shadow.h"
 
+ShadowFBOps * __mg_shadow_fb_ops;
 extern void *shadow_rga_g_bo_ptr(void);
 extern int shadow_rga_init(int size);
 extern void shadow_rga_exit(void);
